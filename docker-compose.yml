@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  mongo-db:
+    image: mongo:6.0
+    container_name: ms-product-mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: productdb
+    volumes:
+      - mongo-data:/data/db
+      - ./init-user.js:/docker-entrypoint-initdb.d/init-user.js
+    networks:
+      - localnet
+
+  ms-product:
+    build:
+      context: .
+    container_name: ms-product
+    ports:
+      - "9000:9000"
+    depends_on:
+      - mongo-db
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+      - localnet
+
+volumes:
+  mongo-data:
+
+networks:
+  localnet:
+    driver: bridge
